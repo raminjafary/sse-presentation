@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE</title>
+
+    <button onclick="stopEventStream()">stop!</button>
+</head>
+
+<body>
+    <ul></ul>
+
+    <script>
+
+        let eventSource = null
+
+        function startEventstream() {
+            const ul = document.querySelector('ul')
+
+            eventSource = new EventSource('http://localhost:3000/events')
+
+            function createListItem(text) {
+                const li = document.createElement('li')
+                li.textContent = text.event ?
+                    'event: ' + text.event + ' / ' + 'connection: ' + text.connection
+                    : text
+
+                ul.appendChild(li)
+            }
+
+            eventSource.addEventListener('open', () => {
+                createListItem('server-sent events started!')
+            })
+
+            eventSource.addEventListener("my-event", (e) => {
+                // createListItem(JSON.parse(e.data))
+                createListItem(e.data)
+            })
+
+            eventSource.addEventListener("error", (e) => {
+                createListItem('server-sent events closed!')
+            })
+        }
+
+        startEventstream()
+
+        function stopEventStream() {
+            eventSource.close()
+        }
+    </script>
+</body>
+
+</html>
